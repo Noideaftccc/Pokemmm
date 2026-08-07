@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B0F0D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="相剋羅盤">
+<title>相剋羅盤 · 玄</title>
+<style>
+:root{
+  --void:#0B0F0D; --ink:#0F1512; --rice:#EEE7D7; --muted:#8A9089;
+  --gold:#C9A227; --gold-lit:#E9C955; --cinnabar:#C83B27; --cinnabar-lit:#F0603F;
+  --jade:#4E8F87;
+  --serif:"Yuanti TC","YuanTi TC","Round Gothic","PingFang TC","Noto Sans TC",-apple-system,"Microsoft JhengHei",sans-serif;
+  --sans:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;background:var(--void);}
+body{
+  color:var(--rice);font-family:var(--sans);
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(201,162,39,.10), transparent 60%),
+    radial-gradient(100% 60% at 50% 110%, rgba(200,59,39,.08), transparent 55%),
+    var(--void);
+  min-height:100vh;
+}
+.wrap{max-width:540px;margin:0 auto;padding:20px 14px 52px;}
+.eyebrow{font-family:var(--serif);font-size:11px;letter-spacing:.5em;color:var(--gold);opacity:.8;margin:0 0 4px;text-indent:.5em;}
+h1{font-family:var(--serif);font-size:32px;font-weight:400;letter-spacing:.2em;margin:0 0 4px;text-indent:.2em;
+  background:linear-gradient(180deg,#F4ECD8,#C9A227);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.lede{font-size:12px;color:var(--muted);margin:0 0 8px;}
+
+.stage{position:relative;margin:6px auto 4px;}
+svg.wheel{display:block;width:100%;height:auto;max-width:460px;margin:0 auto;overflow:visible;}
+.spin{transform-origin:200px 200px;animation:spin 90s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin-rev{transform-origin:200px 200px;animation:spin 140s linear infinite reverse;}
+@media(prefers-reduced-motion:reduce){.spin,.spin-rev{animation:none;}}
+
+.node{cursor:pointer;}
+.node .ring{fill:#141A17;stroke:var(--tc,#888);stroke-width:1.8;stroke-opacity:.9;transition:.25s;}
+.node .lbl{font-family:var(--serif);font-weight:700;fill:var(--tc,#EEE7D7);pointer-events:none;transition:.25s;}
+.node:hover .ring{stroke-width:2.6;stroke-opacity:1;}
+.node.sel .ring{fill:var(--tc);stroke:#fff;stroke-width:2.4;stroke-opacity:1;}
+.node.sel .lbl{fill:#fff;paint-order:stroke;stroke:rgba(0,0,0,.35);stroke-width:2px;}
+.node.hit .ring{stroke:var(--cinnabar-lit);stroke-width:2.4;stroke-opacity:1;}
+.node.threat .ring{stroke:var(--gold-lit);stroke-width:2;stroke-opacity:1;stroke-dasharray:3 3;}
+.node.dim{opacity:.4;}
+
+.ray{fill:none;stroke-linecap:round;animation:appear .3s ease forwards;}
+.rring{fill:none;animation:appear .3s ease forwards;}
+@keyframes appear{from{opacity:0;}to{opacity:1;}}
+
+.halo{fill:none;stroke:var(--gold-lit);opacity:.0;}
+.sel .halo{animation:pulse 2.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:0;r:24px;}50%{opacity:.5;r:30px;}}
+
+.legend{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:6px 0 4px;}
+.legend i{display:inline-block;width:15px;height:2px;vertical-align:middle;margin-right:5px;border-radius:2px;}
+.legend .a i{background:var(--cinnabar-lit);} .legend .b i{background:var(--muted);border-top:1px dashed var(--muted);height:0;}
+.bar{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 0 20px;}
+.hint{font-size:11px;color:var(--muted);opacity:.7;}
+.reset{
+  font-family:var(--serif);font-size:12px;letter-spacing:.1em;color:var(--gold);
+  background:transparent;border:1px solid rgba(201,162,39,.4);border-radius:2px;
+  padding:4px 12px;cursor:pointer;transition:.2s;
+}
+.reset:hover{background:rgba(201,162,39,.12);border-color:var(--gold);color:var(--gold-lit);}
+.reset:active{transform:scale(.96);}
+.reset:disabled{opacity:.3;cursor:default;border-color:rgba(201,162,39,.2);}
+.reset:focus-visible{outline:1px solid var(--rice);outline-offset:2px;}
+
+.scrolls{display:grid;gap:11px;}
+.scroll{
+  background:linear-gradient(180deg, rgba(20,26,23,.9), rgba(15,21,18,.9));
+  border:1px solid rgba(201,162,39,.2);border-radius:4px;padding:13px 14px;
+  position:relative;overflow:hidden;
+}
+.scroll::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;}
+.scroll.atk::before{background:linear-gradient(var(--cinnabar),var(--cinnabar-lit));}
+.scroll.def::before{background:linear-gradient(var(--gold),var(--gold-lit));}
+.scroll h2{font-family:var(--serif);font-size:15px;font-weight:400;letter-spacing:.1em;margin:0 0 10px;display:flex;align-items:baseline;gap:8px;}
+.scroll h2 .who{font-size:11px;color:var(--muted);margin-left:auto;font-family:var(--sans);}
+.tier{display:flex;gap:10px;padding:7px 0;border-top:1px solid rgba(238,231,215,.07);}
+.tier:first-of-type{border-top:0;}
+.tier .lab{flex:none;width:70px;font-family:var(--serif);font-size:12px;padding-top:3px;}
+.x4{color:var(--cinnabar-lit);font-weight:700;} .x2{color:var(--cinnabar-lit);}
+.x1{color:var(--muted);} .xh{color:var(--jade);} .xq{color:var(--jade);} .x0{color:var(--gold-lit);}
+.tier .val{flex:1;min-width:0;}
+.chip{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:3px 10px;margin:0 5px 5px 0;
+  background:var(--tc-bg,rgba(255,255,255,.04));color:var(--tc-fg,#EEE7D7);border:1px solid var(--tc-bd,rgba(255,255,255,.08));border-radius:3px;}
+.none{font-size:12px;color:var(--muted);padding-top:3px;}
+footer{margin-top:22px;font-size:10.5px;color:var(--muted);text-align:center;line-height:1.9;}
+footer b{color:var(--gold);font-weight:400;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">相 生 相 剋</p>
+  <h1>相剋羅盤</h1>
+  <p class="lede">點對方的屬性（可點兩個看雙系），看你用什麼打它最痛。</p>
+
+  <div class="stage">
+    <svg class="wheel" viewBox="0 0 400 400" role="application" aria-label="屬性相剋羅盤">
+      <defs>
+        <radialGradient id="core" cx="50%" cy="45%" r="60%">
+          <stop offset="0%" stop-color="#F0603F"/>
+          <stop offset="70%" stop-color="#C83B27"/>
+          <stop offset="100%" stop-color="#8E2A1C"/>
+        </radialGradient>
+        <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.4" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <marker id="ah" markerWidth="7" markerHeight="7" refX="5.6" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#F0603F"/>
+        </marker>
+      </defs>
+
+      <g class="spin" opacity="1">
+        <circle cx="200" cy="200" r="192" fill="none" stroke="#C9A227" stroke-width=".6" opacity=".22"/>
+        <circle cx="200" cy="200" r="180" fill="none" stroke="#C9A227" stroke-width=".8" opacity=".3"/>
+        <g id="ticks"></g>
+      </g>
+      <g class="spin-rev">
+        <circle cx="200" cy="200" r="134" fill="none" stroke="#C9A227" stroke-width=".6" opacity=".2" stroke-dasharray="1 5"/>
+      </g>
+
+      <g id="rays"></g>
+      <g id="center"></g>
+      <g id="nodes"></g>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <span class="a"><i></i><span id="lgA">實線＋圈＝有效（圈越多越猛，4倍4圈）</span></span>
+    <span class="b"><i></i><span id="lgB">虛線＝打了沒用或無效</span></span>
+  </div>
+  <div class="bar">
+    <span class="hint" id="hint">尚未點選</span>
+    <button type="button" id="reset" class="reset" aria-label="清除所有選取">✕ 重置</button>
+  </div>
+
+  <div class="scrolls">
+    <div class="scroll atk">
+      <h2>用這些打它<span class="who" id="whoD"></span></h2>
+      <div id="def"></div>
+    </div>
+    <div class="scroll def">
+      <h2>它能打你的<span class="who" id="whoA"></span></h2>
+      <div id="off"></div>
+    </div>
+  </div>
+
+  <footer>
+    官方相剋規則（第六世代起）· 純屬性、未含特性<br>
+    離線可用 · <b>Safari 分享 → 加入主畫面</b>
+  </footer>
+</div>
+
+<script>
+const TYPES=["一般","火","水","電","草","冰","格鬥","毒","地面","飛行","超能力","蟲","岩","幽靈","龍","惡","鋼","妖精"];
+const COLOR={"一般":"#A8A77A","火":"#EE8130","水":"#6390F0","電":"#F7D02C","草":"#7AC74C","冰":"#96D9D6","格鬥":"#C22E28","毒":"#A33EA1","地面":"#E2BF65","飛行":"#A98FF3","超能力":"#F95587","蟲":"#A6B91A","岩":"#B6A136","幽靈":"#735797","龍":"#6F35FC","惡":"#705746","鋼":"#B7B7CE","妖精":"#D685AD"};
+const CHART={
+ "一般":{half:["岩","鋼"],zero:["幽靈"]},"火":{two:["草","冰","蟲","鋼"],half:["火","水","岩","龍"]},
+ "水":{two:["火","地面","岩"],half:["水","草","龍"]},"電":{two:["水","飛行"],half:["電","草","龍"],zero:["地面"]},
+ "草":{two:["水","地面","岩"],half:["火","草","毒","飛行","蟲","龍","鋼"]},"冰":{two:["草","地面","飛行","龍"],half:["火","水","冰","鋼"]},
+ "格鬥":{two:["一般","冰","岩","惡","鋼"],half:["毒","飛行","超能力","蟲","妖精"],zero:["幽靈"]},"毒":{two:["草","妖精"],half:["毒","地面","岩","幽靈"],zero:["鋼"]},
+ "地面":{two:["火","電","毒","岩","鋼"],half:["草","蟲"],zero:["飛行"]},"飛行":{two:["草","格鬥","蟲"],half:["電","岩","鋼"]},
+ "超能力":{two:["格鬥","毒"],half:["超能力","鋼"],zero:["惡"]},"蟲":{two:["草","超能力","惡"],half:["火","格鬥","毒","飛行","幽靈","鋼","妖精"]},
+ "岩":{two:["火","冰","飛行","蟲"],half:["格鬥","地面","鋼"]},"幽靈":{two:["超能力","幽靈"],half:["惡"],zero:["一般"]},
+ "龍":{two:["龍"],half:["鋼"],zero:["妖精"]},"惡":{two:["超能力","幽靈"],half:["格鬥","惡","妖精"]},
+ "鋼":{two:["冰","岩","妖精"],half:["火","水","電","鋼"]},"妖精":{two:["格鬥","龍","惡"],half:["火","毒","鋼"]}
+};
+const mult=(a,d)=>{const c=CHART[a];if(c.two&&c.two.includes(d))return 2;if(c.half&&c.half.includes(d))return .5;if(c.zero&&c.zero.includes(d))return 0;return 1;};
+const inc=(sel,a)=>sel.reduce((v,t)=>v*mult(a,t),1);
+
+const NS="http://www.w3.org/2000/svg";
+const el=(n,at)=>{const e=document.createElementNS(NS,n);for(const k in at)e.setAttribute(k,at[k]);return e;};
+const CX=200,CY=200,R=157,NR=22;
+const pos=i=>{const a=(-90+i*20)*Math.PI/180;return {x:CX+R*Math.cos(a),y:CY+R*Math.sin(a),a};};
+
+(function(){const g=document.getElementById("ticks");
+  for(let i=0;i<72;i++){const a=i*5*Math.PI/180,big=i%6===0;
+    g.appendChild(el("line",{x1:CX+180*Math.cos(a),y1:CY+180*Math.sin(a),
+      x2:CX+(big?188:184)*Math.cos(a),y2:CY+(big?188:184)*Math.sin(a),
+      stroke:"#C9A227","stroke-width":big?1:.5,opacity:big?.5:.25}));}
+})();
+
+let sel=[];
+const nodesG=document.getElementById("nodes"),raysG=document.getElementById("rays"),centerG=document.getElementById("center");
+const nodeEls=TYPES.map((t,i)=>{
+  const p=pos(i);
+  const g=el("g",{class:"node",tabindex:"0",role:"button","aria-label":t,style:`--tc:${COLOR[t]}`});
+  g.appendChild(el("circle",{class:"halo",cx:p.x,cy:p.y,r:24}));
+  g.appendChild(el("circle",{class:"ring",cx:p.x,cy:p.y,r:NR}));
+  const tx=el("text",{class:"lbl",x:p.x,y:p.y,"text-anchor":"middle","dominant-baseline":"central","font-size":t.length>=3?10:15});
+  tx.textContent=t; g.appendChild(tx);
+  const pick=()=>{const k=sel.indexOf(t);if(k>=0)sel.splice(k,1);else{sel.push(t);if(sel.length>2)sel.shift();}render();};
+  g.addEventListener("click",pick);
+  g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick();}});
+  nodesG.appendChild(g); return g;
+});
+
+function hexA(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
+function isLight(h){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return (0.299*r+0.587*g+0.114*b)>150;}
+function chip(t){const c=COLOR[t];
+  return `<span class="chip" style="--tc-bg:${hexA(c,.9)};--tc-bd:${c};--tc-fg:${isLight(c)?'#1c1c1a':'#fff'}">${t}</span>`;}
+function tier(lab,cls,arr){return `<div class="tier"><div class="lab ${cls}">${lab}</div><div class="val">${arr.length?arr.map(chip).join(""):'<span class="none">無</span>'}</div></div>`;}
+
+function render(){
+  nodeEls.forEach((g,i)=>{const t=TYPES[i];
+    g.classList.remove("sel","hit","threat","dim");
+    if(sel.includes(t)){g.classList.add("sel");return;}
+    if(sel.length){
+      const m=inc(sel,t);
+      if(m>=2)g.classList.add("hit");
+      else if(m===0)g.classList.add("dim");
+    }
+  });
+
+  raysG.innerHTML="";
+  if(sel.length){
+    TYPES.forEach((t,i)=>{
+      if(sel.includes(t))return;
+      const m=inc(sel,t);
+      if(m===1)return;
+      const p=pos(i);
+      const dx=CX-p.x,dy=CY-p.y,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L;
+      const x1=p.x+ux*(NR+3),y1=p.y+uy*(NR+3);
+      const x2=CX-ux*50,y2=CY-uy*50;
+      if(m>=2){
+        raysG.appendChild(el("line",{class:"ray",x1,y1,x2,y2,stroke:"#F0603F",
+          "stroke-width":m===4?2.6:1.7,opacity:.95,"marker-end":"url(#ah)"}));
+        const rings=(m===4?4:2);
+        for(let k=1;k<=rings;k++)
+          raysG.appendChild(el("circle",{class:"rring",cx:p.x,cy:p.y,r:NR+2+k*3.2,
+            stroke:"#F0603F","stroke-width":1.3,opacity:.62-k*0.07}));
+      }else{
+        raysG.appendChild(el("line",{class:"ray",x1,y1,x2,y2,stroke:"#8A9089",
+          "stroke-width":1,opacity:m===0?.55:.4,"stroke-dasharray":m===0?"1 4":"3 4"}));
+      }
+    });
+  }
+
+  centerG.innerHTML="";
+  if(sel.length){
+    centerG.appendChild(el("circle",{cx:CX,cy:CY,r:46,fill:"url(#core)",filter:"url(#glow)"}));
+    centerG.appendChild(el("circle",{cx:CX,cy:CY,r:46,fill:"none",stroke:"#F4ECD8","stroke-width":.8,opacity:.5}));
+    sel.forEach((t,i)=>{const ty=el("text",{x:CX,y:CY+(sel.length===1?0:(i?19:-19)),"text-anchor":"middle","dominant-baseline":"central",
+      "font-size":t.length>=3?(sel.length===1?23:18):(sel.length===1?32:25),fill:"#fff","font-family":"var(--serif)","font-weight":"600","letter-spacing":"2"});
+      ty.textContent=t;centerG.appendChild(ty);});
+  }else{
+    centerG.appendChild(el("circle",{cx:CX,cy:CY,r:46,fill:"none",stroke:"#C9A227","stroke-width":.7,opacity:.35,"stroke-dasharray":"2 4"}));
+    const ty=el("text",{x:CX,y:CY,"text-anchor":"middle","dominant-baseline":"central","font-size":13,fill:"#8A9089","font-family":"var(--serif)","letter-spacing":"4"});
+    ty.textContent="擇 屬";centerG.appendChild(ty);
+  }
+
+  const off=document.getElementById("off"),def=document.getElementById("def");
+  const whoA=document.getElementById("whoA"),whoD=document.getElementById("whoD"),hint=document.getElementById("hint");
+  if(!sel.length){off.innerHTML=def.innerHTML='<div class="none">點羅盤上對方的屬性。</div>';whoA.textContent=whoD.textContent="";hint.textContent="尚未點選";return;}
+  hint.textContent="對方："+sel.join("／")+(sel.length===2?"　雙系":"");
+  whoA.textContent=whoD.textContent=sel.join("／");
+
+  const o={2:[],1:[],.5:[],0:[]};
+  TYPES.forEach(d=>o[Math.max(...sel.map(s=>mult(s,d)))].push(d));
+  off.innerHTML=tier("2倍","x2",o[2])+tier("1倍","x1",o[1])+tier("½倍","xh",o[.5])+tier("0倍","x0",o[0]);
+
+  const d={4:[],2:[],1:[],.5:[],.25:[],0:[]};
+  TYPES.forEach(a=>d[inc(sel,a)].push(a));
+  def.innerHTML=(d[4].length?tier("4倍 秒","x4",d[4]):"")+tier("2倍 猛","x2",d[2])+tier("1倍","x1",d[1])
+    +tier("½倍 沒用","xh",d[.5])+(d[.25].length?tier("¼倍","xq",d[.25]):"")+tier("0倍 無效","x0",d[0]);
+
+  resetBtn.disabled = sel.length===0;
+}
+
+const resetBtn=document.getElementById("reset");
+resetBtn.addEventListener("click",()=>{ sel=[]; render(); });
+
+render();
+</script>
+</body>
+</html>
