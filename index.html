@@ -28,6 +28,22 @@ body{
   min-height:100vh;
 }
 .wrap{max-width:540px;margin:0 auto;padding:20px 14px 52px;}
+.main{display:flex;flex-direction:column;}
+.side{width:100%;}
+
+@media (orientation:landscape) and (max-height:600px){
+  .wrap{max-width:none;padding:8px 18px 12px;}
+  .head{margin-bottom:2px;}
+  .head .eyebrow,.head .lede{display:none;}
+  .head h1{font-size:20px;margin:0;letter-spacing:.15em;}
+  .main{flex-direction:row;align-items:center;gap:20px;}
+  .stage{flex:0 0 auto;margin:0;}
+  svg.wheel{width:auto;height:min(88vh,430px);max-width:48vw;margin:0;}
+  .side{flex:1 1 auto;min-width:0;max-height:94vh;overflow-y:auto;padding-right:4px;}
+  .legend{justify-content:flex-start;margin-top:0;}
+  .bar{justify-content:flex-start;}
+  footer{display:none;}
+}
 .eyebrow{font-family:var(--serif);font-size:11px;letter-spacing:.5em;color:var(--gold);opacity:.8;margin:0 0 4px;text-indent:.5em;}
 h1{font-family:var(--serif);font-size:32px;font-weight:400;letter-spacing:.2em;margin:0 0 4px;text-indent:.2em;
   background:linear-gradient(180deg,#F4ECD8,#C9A227);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
@@ -99,10 +115,13 @@ footer b{color:var(--gold);font-weight:400;}
 </head>
 <body>
 <div class="wrap">
+  <div class="head">
   <p class="eyebrow">相 生 相 剋</p>
   <h1>相剋羅盤</h1>
   <p class="lede">點對方的屬性（可點兩個看雙系），看你用什麼打它最痛。</p>
+  </div>
 
+  <div class="main">
   <div class="stage">
     <svg class="wheel" viewBox="0 0 400 400" role="application" aria-label="屬性相剋羅盤">
       <defs>
@@ -134,6 +153,7 @@ footer b{color:var(--gold);font-weight:400;}
       <g id="nodes"></g>
     </svg>
   </div>
+  <div class="side">
 
   <div class="legend">
     <span class="a"><i></i><span id="lgA">實線＋圈＝有效（圈越多越猛，4倍4圈）</span></span>
@@ -153,6 +173,8 @@ footer b{color:var(--gold);font-weight:400;}
       <h2>它能打你的<span class="who" id="whoA"></span></h2>
       <div id="off"></div>
     </div>
+  </div>
+  </div>
   </div>
 
   <footer>
